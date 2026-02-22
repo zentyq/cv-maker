@@ -20,8 +20,9 @@ export default async function handler(req, res) {
 
     // Check if API key is configured
     if (!process.env.GROK_API_KEY) {
+      console.error('GROK_API_KEY not found in environment variables');
       return res.status(500).json({ 
-        error: 'Grok API key not configured. Please add GROK_API_KEY to your .env file.' 
+        error: 'Grok API key not configured. Please contact admin to set GROK_API_KEY in environment.' 
       });
     }
 
@@ -83,6 +84,9 @@ CRITICAL INSTRUCTIONS:
       temperature: 0.3,
       max_tokens: 16000,
       response_format: { type: "json_object" }
+    }).catch(err => {
+      console.error('Grok API Error:', err.message, err.status);
+      throw new Error(`Grok API Error: ${err.message}`);
     });
 
     // Extract the parsed CV
