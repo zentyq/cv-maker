@@ -1,0 +1,242 @@
+/* Dark Theme Custom Styles for CV Maker */
+
+/* Override main background */
+body {
+  background: linear-gradient(135deg, #1a202c 0%, #2d3748 50%, #1e3a8a 100%) !important;
+  min-height: 100vh;
+}
+
+/* Card Styles - Dark Theme */
+.bg-white.rounded-lg.shadow-md,
+.bg-white.rounded-lg.shadow-md.p-6,
+.bg-white.rounded-2xl.shadow-2xl {
+  background: rgba(31, 41, 55, 0.9) !important;
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(75, 85, 99, 0.3) !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Headings - White Text */
+h1, h2, h3, h4, h5, h6,
+.text-gray-900,
+.text-2xl.font-semibold.text-gray-900 {
+  color: #ffffff !important;
+}
+
+/* Paragraph and Labels */
+.text-gray-700,
+.text-sm.text-gray-600,
+.text-gray-600 {
+  color: #93c5fd !important;
+}
+
+/* Input Fields */
+input[type="text"],
+input[type="email"],
+textarea,
+select {
+  background-color: #111827 !important;
+  border: 2px solid #374151 !important;
+  color: #f3f4f6 !important;
+  transition: all 0.3s ease;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #6b7280 !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+  background-color: #1f2937 !important;
+}
+
+/* Buttons */
+button {
+  transition: all 0.3s ease !important;
+}
+
+/* Primary Button Style */
+.btn-primary,
+button.bg-blue-600 {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39) !important;
+}
+
+.btn-primary:hover,
+button.bg-blue-600:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px 0 rgba(59, 130, 246, 0.5) !important;
+}
+
+/* Secondary Button Style */
+.btn-secondary,
+button.bg-green-600 {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.39) !important;
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px 0 rgba(16, 185, 129, 0.5) !important;
+}
+
+/* Delete/Remove Buttons */
+button.bg-red-500,
+button.text-red-500 {
+  color: #ef4444 !important;
+}
+
+button.bg-red-500:hover,
+button.text-red-500:hover {
+  color: #dc2626 !important;
+}
+
+/* Add Buttons */
+button.bg-green-500 {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  box-shadow: 0 2px 8px 0 rgba(16, 185, 129, 0.3) !important;
+}
+
+button.bg-green-500:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+  transform: translateY(-1px);
+}
+
+/* Error Messages */
+.bg-red-50 {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
+
+.text-red-800 {
+  color: #fca5a5 !important;
+}
+
+/* Loading States */
+.opacity-50 {
+  opacity: 0.5 !important;
+}
+
+/* Grid and Layout */
+.bg-gradient-to-br {
+  position: relative;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1f2937;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+}
+
+/* Form Labels */
+label.block.text-sm.font-medium {
+  color: #93c5fd !important;
+  font-weight: 600 !important;
+}
+
+/* Iframe Container */
+iframe {
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Hover Effects for Cards */
+.bg-white.rounded-lg.shadow-md:hover {
+  border-color: rgba(59, 130, 246, 0.5) !important;
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+}
+
+/* Badge/Tag Styles */
+.bg-gray-100,
+.bg-gray-200 {
+  background-color: #374151 !important;
+  color: #93c5fd !important;
+}
+
+/* Selection Highlight */
+::selection {
+  background-color: #3b82f6;
+  color: white;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.space-y-6 > * {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .bg-white.rounded-lg.shadow-md {
+    padding: 1rem !important;
+  }
+  
+  h1 {
+    font-size: 2.5rem !important;
+  }
+  
+  h2 {
+    font-size: 1.5rem !important;
+  }
+}
+
+/* Glassmorphism Effect */
+.backdrop-blur-md {
+  background: rgba(31, 41, 55, 0.8) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Button Icons */
+button svg {
+  transition: transform 0.3s ease;
+}
+
+button:hover svg {
+  transform: scale(1.1);
+}
+
+/* Pulse Animation for Active State */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .8;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

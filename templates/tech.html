@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV - {{name}}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Courier New', monospace; }
+    </style>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-4xl mx-auto text-gray-900">
+        <!-- Header -->
+        <header class="mb-8 bg-gray-900 text-white p-6 rounded">
+            <h1 class="text-5xl font-bold mb-2">{{name}}</h1>
+            <h2 class="text-xl text-green-400">{{title}}</h2>
+            
+            <div class="mt-4 grid grid-cols-2 gap-2 text-sm">
+                <div>✉ {{email}}</div>
+                <div>📞 {{phone}}</div>
+                <div>📍 {{location}}</div>
+            </div>
+        </header>
+
+        <!-- Skills first for tech template -->
+        <section class="mb-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-3 pb-2 border-b border-gray-300">
+                // TECHNICAL SKILLS
+            </h3>
+            <div class="flex flex-wrap gap-2">
+                {{#skills}}
+                <span class="bg-gray-200 px-3 py-1 rounded text-sm">{{.}}</span>
+                {{/skills}}
+            </div>
+        </section>
+
+        <!-- Professional Summary -->
+        <section class="mb-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-3 pb-2 border-b border-gray-300">
+                // SUMMARY
+            </h3>
+            <p class="text-gray-700 leading-relaxed bg-white p-4 rounded border-l-4 border-green-400 text-sm">{{summary}}</p>
+        </section>
+
+        <!-- Professional Experience -->
+        <section class="mb-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-3 pb-2 border-b border-gray-300">
+                // EXPERIENCE
+            </h3>
+            {{#experience}}
+            <div class="bg-white p-4 rounded border-l-4 border-gray-900 mb-4">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <h4 class="font-bold text-gray-900">{{role}}</h4>
+                        <p class="text-gray-700 text-sm">{{company}}</p>
+                    </div>
+                    <div class="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded">{{dates}}</div>
+                </div>
+                <ul class="list-none ml-0 space-y-1 text-gray-700 text-sm">
+                    {{#bullets}}
+                    <li><span class="text-green-600 mr-2">{'>'}</span>{{.}}</li>
+                    {{/bullets}}
+                </ul>
+            </div>
+            {{/experience}}
+        </section>
+
+        <!-- Education -->
+        <section class="mb-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-3 pb-2 border-b border-gray-300">
+                // EDUCATION
+            </h3>
+            {{#education}}
+            <div class="bg-white p-4 rounded border-l-4 border-blue-400 mb-4">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <h4 class="font-bold text-gray-900">{{degree}}</h4>
+                        <p class="text-gray-700 text-sm">{{school}}</p>
+                    </div>
+                    <div class="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded">{{year}}</div>
+                </div>
+            </div>
+            {{/education}}
+        </section>
+    </div>
+</body>
+</html>
