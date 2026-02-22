@@ -1,8 +1,9 @@
 import OpenAI from 'openai';
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+// Initialize Grok client (OpenAI-compatible API)
+const grok = new OpenAI({
+  apiKey: process.env.GROK_API_KEY,
+  baseURL: 'https://api.x.ai/v1',
 });
 
 export default async function handler(req, res) {
@@ -18,9 +19,9 @@ export default async function handler(req, res) {
     }
 
     // Check if API key is configured
-    if (!process.env.OPENAI_API_KEY) {
+    if (!process.env.GROK_API_KEY) {
       return res.status(500).json({ 
-        error: 'OpenAI API key not configured. Please add OPENAI_API_KEY to your .env file.' 
+        error: 'Grok API key not configured. Please add GROK_API_KEY to your .env file.' 
       });
     }
 
@@ -66,9 +67,9 @@ CRITICAL INSTRUCTIONS:
 - If there are projects, certifications, or languages sections, include relevant items in skills
 - Return valid JSON only`;
 
-    // Call OpenAI API with GPT-4o for better token handling
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
+    // Call Grok API with grok-2
+    const completion = await grok.chat.completions.create({
+      model: "grok-2",
       messages: [
         {
           role: "system",
@@ -101,13 +102,13 @@ CRITICAL INSTRUCTIONS:
     // Provide helpful error messages
     if (error.code === 'insufficient_quota') {
       return res.status(500).json({ 
-        error: 'OpenAI API quota exceeded. Please check your OpenAI account.' 
+        error: 'Grok API quota exceeded. Please check your Grok account.' 
       });
     }
     
     if (error.code === 'invalid_api_key') {
       return res.status(500).json({ 
-        error: 'Invalid OpenAI API key. Please check your .env file.' 
+        error: 'Invalid Grok API key. Please check your .env file.' 
       });
     }
 
