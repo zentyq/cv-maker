@@ -1,10 +1,3 @@
-import OpenAI from 'openai';
-
-// Initialize Grok client (OpenAI-compatible API)
-const grok = new OpenAI({
-  apiKey: process.env.GROK_API_KEY,
-  baseURL: 'https://api.x.ai/v1',
-});
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -18,11 +11,11 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'CV text is required' });
     }
 
-    // Check if API key is configured
-    if (!process.env.GROK_API_KEY) {
-      console.error('GROK_API_KEY not found in environment variables');
+    // Check if Wavespeed API key is configured
+    if (!process.env.WAVESPEED_API_KEY) {
+      console.error('WAVESPEED_API_KEY not found in environment variables');
       return res.status(500).json({ 
-        error: 'Grok API key not configured. Please contact admin to set GROK_API_KEY in environment.' 
+        error: 'Wavespeed API Key not configured. Please add WAVESPEED_API_KEY to your environment variables.' 
       });
     }
 
@@ -68,29 +61,41 @@ CRITICAL INSTRUCTIONS:
 - If there are projects, certifications, or languages sections, include relevant items in skills
 - Return valid JSON only`;
 
-    // Call Grok API with grok-2
-    const completion = await grok.chat.completions.create({
-      model: "grok-2",
-      messages: [
-        {
-          role: "system",
-          content: "You are a CV parser. You extract ALL information from the CV accurately and completely. You always respond with valid JSON only, no additional text."
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      temperature: 0.3,
-      max_tokens: 16000,
-      response_format: { type: "json_object" }
+    // Call Wavespeed AI via fetch
+    const aiResponse = await fetch('https://llm.wavespeed.ai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.WAVESPEED_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'openai/gpt-5.4-mini',
+        messages: [
+          { role: "system", content: "You are a CV parser. You extract ALL information from the CV accurately and completely. You always respond with valid JSON only, no additional text." },
+          { role: "user", content: prompt }
+        ],
+        temperature: 0.3,
+        max_tokens: 8000,
+        response_format: { type: "json_object" }
+      })
     }).catch(err => {
-      console.error('Grok API Error:', err.message, err.status);
-      throw new Error(`Grok API Error: ${err.message}`);
+      console.error('Wavespeed AI Network Error:', err.message);
+      throw new Error(`Wavespeed AI Network Error: ${err.message}`);
     });
 
+    if (!aiResponse.ok) {
+      const errorText = await aiResponse.text();
+      throw new Error(`Wavespeed API error: ${aiResponse.status} ${errorText}`);
+    }
+
+    const data = await aiResponse.json();
+
     // Extract the parsed CV
-    const cvDataText = completion.choices[0].message.content;
+    let cvDataText = data.choices[0].message.content.trim();
+    // Strip markdown code blocks if present
+    if (cvDataText.startsWith('```')) {
+      cvDataText = cvDataText.replace(/^```(?:json)?\n?/i, '').replace(/\n?```$/i, '');
+    }
     const cvData = JSON.parse(cvDataText);
 
     // Validate the structure
@@ -104,15 +109,15 @@ CRITICAL INSTRUCTIONS:
     console.error('Error parsing CV:', error);
     
     // Provide helpful error messages
-    if (error.code === 'insufficient_quota') {
+    if (error.message && error.message.includes('429')) {
       return res.status(500).json({ 
-        error: 'Grok API quota exceeded. Please check your Grok account.' 
+        error: 'Wavespeed AI quota exceeded. Please try again later.' 
       });
     }
     
-    if (error.code === 'invalid_api_key') {
+    if (error.message && error.message.includes('401')) {
       return res.status(500).json({ 
-        error: 'Invalid Grok API key. Please check your .env file.' 
+        error: 'Authentication failed. Please check your Wavespeed API key.' 
       });
     }
 

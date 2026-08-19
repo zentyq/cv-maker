@@ -131,8 +131,13 @@ export default function Home() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to generate CV');
+        let errorMessage = 'Failed to generate CV';
+        try {
+          const textData = await response.text();
+          const errorData = JSON.parse(textData);
+          errorMessage = errorData.error || errorMessage;
+        } catch(e) {}
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -168,8 +173,13 @@ export default function Home() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to parse CV');
+        let errorMessage = 'Failed to parse CV';
+        try {
+          const textData = await response.text();
+          const errorData = JSON.parse(textData);
+          errorMessage = errorData.error || errorMessage;
+        } catch(e) {}
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -484,6 +494,7 @@ export default function Home() {
     setError('');
 
     try {
+      // Try server-side PDF generation first
       const response = await fetch('/api/export', {
         method: 'POST',
         headers: {
@@ -492,26 +503,51 @@ export default function Home() {
         body: JSON.stringify({ html: renderedHtml }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to export PDF');
+      if (response.ok) {
+        // Server-side PDF worked
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `CV-${cvData?.name?.replace(/\s/g, '-') || 'download'}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      } else {
+        // Fallback: open print dialog in a new window
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+          printWindow.document.write(renderedHtml);
+          printWindow.document.close();
+          printWindow.onload = () => {
+            printWindow.print();
+          };
+          // Also try immediately in case onload already fired
+          setTimeout(() => {
+            try { printWindow.print(); } catch(e) {}
+          }, 500);
+        } else {
+          throw new Error('Pop-up blocked. Please allow pop-ups and try again.');
+        }
       }
-
-      // Create a blob from the PDF
-      const blob = await response.blob();
-      
-      // Create a download link
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `CV-${cvData?.name?.replace(/\s/g, '-') || 'download'}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-
     } catch (err) {
       console.error('Export error:', err);
-      setError('Failed to export PDF. Please try again.');
+      // Final fallback: try print dialog
+      try {
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+          printWindow.document.write(renderedHtml);
+          printWindow.document.close();
+          setTimeout(() => {
+            try { printWindow.print(); } catch(e) {}
+          }, 500);
+        } else {
+          setError('Failed to export PDF. Please allow pop-ups or use Ctrl+P to print the preview.');
+        }
+      } catch (fallbackErr) {
+        setError('Failed to export PDF. Please use Ctrl+P to print the preview.');
+      }
     } finally {
       setIsExporting(false);
     }

@@ -1,7 +1,3 @@
-// Initialize Grok API client using fetch
-// Grok API is compatible with OpenAI's chat completion format at https://api.x.ai/v1
-const grokApiKey = process.env.GROK_API_KEY;
-const grokApiEndpoint = 'https://api.x.ai/v1/chat/completions';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -15,10 +11,10 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Job listing is required' });
     }
 
-    // Check if API key is configured
-    if (!grokApiKey) {
-      return res.status(500).json({ 
-        error: 'Grok API key not configured. Please add GROK_API_KEY to your .env file.' 
+    // Check if Wavespeed API key is configured
+    if (!process.env.WAVESPEED_API_KEY) {
+      return res.status(500).json({
+        error: 'Wavespeed API Key not configured. Please add WAVESPEED_API_KEY to your .env file.'
       });
     }
 
@@ -35,13 +31,13 @@ ${userProfile.linkedin ? `LinkedIn: ${userProfile.linkedin}` : ''}
 ${userProfile.portfolio ? `Portfolio: ${userProfile.portfolio}` : ''}
 
 EDUCATION:
-${userProfile.education && userProfile.education.length > 0 ? 
-  userProfile.education.map(edu => `- ${edu.degree} from ${edu.school}, ${edu.year}`).join('\n') : 
-  'Include relevant education for the role'}
+${userProfile.education && userProfile.education.length > 0 ?
+          userProfile.education.map(edu => `- ${edu.degree} from ${edu.school}, ${edu.year}`).join('\n') :
+          'Include relevant education for the role'}
 
-${userProfile.skills && userProfile.skills.length > 0 ? 
-  `SKILLS TO INCLUDE:\n${userProfile.skills.join(', ')}` : 
-  'Include relevant skills for the role'}
+${userProfile.skills && userProfile.skills.length > 0 ?
+          `SKILLS TO INCLUDE:\n${userProfile.skills.join(', ')}` :
+          'Include relevant skills for the role'}
 
 IMPORTANT: Use the user's exact name, contact information, education, and include their skills in the CV. Generate professional work experience that matches the job listing.`;
     }
@@ -109,39 +105,38 @@ Return ONLY a valid JSON object in this exact format (no additional text or expl
   "skills": ["Skill 1", "Skill 2", "Skill 3"]
 }`;
 
-    // Call Grok API
-    const response = await fetch(grokApiEndpoint, {
+    // Call Wavespeed AI via fetch
+    const aiResponse = await fetch('https://llm.wavespeed.ai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${grokApiKey}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.WAVESPEED_API_KEY}`
       },
       body: JSON.stringify({
-        model: "grok-4-fast-reasoning",
+        model: 'openai/gpt-5.4-mini',
         messages: [
-          {
-            role: "system",
-            content: "You are a professional CV writer. You always respond with valid JSON only, no additional text."
-          },
-          {
-            role: "user",
-            content: prompt
-          }
+          { role: "system", content: "You are a professional CV writer. You always respond with valid JSON only, no additional text." },
+          { role: "user", content: prompt }
         ],
         temperature: 0.7,
-        max_tokens: 4096
+        max_tokens: 4096,
+        response_format: { type: "json_object" }
       })
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`Grok API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
+    if (!aiResponse.ok) {
+      const errorText = await aiResponse.text();
+      throw new Error(`Wavespeed API error: ${aiResponse.status} ${errorText}`);
     }
 
-    const completion = await response.json();
+    const data = await aiResponse.json();
 
     // Extract the generated CV
-    const cvText = completion.choices[0].message.content;
+    let cvText = data.choices[0].message.content.trim();
+    // Strip markdown code blocks if present (though responseMimeType usually prevents this)
+    if (cvText.startsWith('```')) {
+      cvText = cvText.replace(/^```(?:json)?\n?/i, '').replace(/\n?```$/i, '');
+    }
     const cvData = JSON.parse(cvText);
 
     // Validate the structure
@@ -153,23 +148,23 @@ Return ONLY a valid JSON object in this exact format (no additional text or expl
 
   } catch (error) {
     console.error('Error generating CV:', error);
-    
+
     // Provide helpful error messages
-    if (error.message.includes('401')) {
-      return res.status(500).json({ 
-        error: 'Invalid Grok API key. Please check your GROK_API_KEY in .env file.' 
-      });
-    }
-    
-    if (error.message.includes('429')) {
-      return res.status(500).json({ 
-        error: 'Grok API rate limit exceeded. Please try again later.' 
+    if (error.message && error.message.includes('401')) {
+      return res.status(500).json({
+        error: 'Authentication failed. Please check your Wavespeed API key.'
       });
     }
 
-    return res.status(500).json({ 
+    if (error.message && error.message.includes('429')) {
+      return res.status(500).json({
+        error: 'Wavespeed AI quota exceeded. Please try again later.'
+      });
+    }
+
+    return res.status(500).json({
       error: 'Failed to generate CV',
-      details: error.message 
+      details: error.message
     });
   }
 }
