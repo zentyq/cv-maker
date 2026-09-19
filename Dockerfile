@@ -12,15 +12,16 @@ WORKDIR /app
 ENV PUPPETEER_SKIP_DOWNLOAD=true \
     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
-    NODE_ENV=production \
     PORT=3000 \
     HOSTNAME=0.0.0.0
 
 COPY package.json package-lock.json ./
-RUN npm install --omit=dev || npm install
+RUN npm install
 
 COPY . .
 RUN npm run build
+
+ENV NODE_ENV=production
 
 EXPOSE 3000
 CMD ["npx", "next", "start", "--hostname", "0.0.0.0", "--port", "3000"]
