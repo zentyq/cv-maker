@@ -16,7 +16,7 @@ ENV PUPPETEER_SKIP_DOWNLOAD=true \
     HOSTNAME=0.0.0.0
 
 COPY package.json package-lock.json ./
-RUN npm install
+RUN npm install --include=dev
 
 COPY . .
 RUN npm run build
